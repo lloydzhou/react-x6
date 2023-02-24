@@ -1,5 +1,4 @@
-import { render } from './Graph'
-import { Graph, Node, Edge } from './Graph'
+import { Graph, Node, Edge } from './lib/Graph'
 import { useState, useRef, useEffect } from 'react'
 import './App.css'
 

@@ -1,6 +1,8 @@
+// @ts-nocheck
 import { Shape, Node, Edge, ObjectExt, StringExt } from '@antv/x6'
 import Reconciler from 'react-reconciler';
 import React, { createElement } from 'react';
+import type { ReactElement, ReactNode, Ref, Key } from 'react';
 import { DefaultEventPriority } from 'react-reconciler/constants'
 
 /**
@@ -17,9 +19,14 @@ import { DefaultEventPriority } from 'react-reconciler/constants'
 
 // 使用一个map保存每一种react元素对应的构造器
 const componentMap = new Map()
+type BaseProps<Element, Prop> = {
+  key?: Key;
+  ref?: Ref<Element>;
+  children?: ReactNode;
+} & Prop;
 export function ElementOf<Element, Prop, T extends string>(
   type: T,
-  Ctor: V,
+  Ctor: () => any,
 ): (props: BaseProps<Element, Prop>) => ReactElement<Prop, T> {
   componentMap.set(type, Ctor)
   return type as any;

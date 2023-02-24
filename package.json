@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build && tsc -d --skipLibCheck --lib es2017 --emitDeclarationOnly --jsx react-jsx --esModuleInterop --declarationDir dist src/lib/index.ts",
     "preview": "vite preview"
   },
   "dependencies": {

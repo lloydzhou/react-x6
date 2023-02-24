@@ -1,6 +1,8 @@
-import { Children, forwardRef, useRef, useLayoutEffect, useState, useMemo, cloneElement, createElement } from 'react'
+// @ts-nocheck
+import { Children, forwardRef, useRef, useLayoutEffect, useState, useMemo, cloneElement } from 'react'
+import type { ReactNode, CSSProperties, Ref } from 'react'
 import { Graph as X6Graph, Node as X6Node, Edge as X6Edge, StringExt, ObjectExt } from '@antv/x6'
-import ReactG, { reconciler, Renderer, ElementOf } from './reconciler';
+import { Renderer, ElementOf } from './reconciler';
 
 const toArray = (children) => {
   return children ? children.length && children || [children] : []
@@ -22,19 +24,27 @@ const bindEvent = (node, events, graph) => {
     graph.on(`cell:${name}`, (e) => {
       const { cell } = e
       if (cell.id === node.id) {
+        // @ts-ignore
         callback(e)
       }
     })
   })
 }
 
-export const Graph = forwardRef(({ children, width, height, style, allowMultiEdge, ...other }, ref) => {
+interface Props {
+  className?: string;
+  style?: CSSProperties;
+  container?: HTMLDivElement;
+  children?: ReactNode;
+};
+
+export const Graph = forwardRef<X6Graph, X6Graph.Options & Props>(({ children, width, height, className, style, ...other }, ref) => {
   const container = useRef();
   const divRef = useRef(null);
 
-  const innerGraphRef = useRef(null);
+  const innerGraphRef = useRef<X6Graph | null>(null);
 
-  const gRef = ref || innerGraphRef;
+  const gRef = (ref || innerGraphRef) as Ref<X6Graph | null>;
 
   useLayoutEffect(() => {
     const graph = new X6Graph({
@@ -44,6 +54,7 @@ export const Graph = forwardRef(({ children, width, height, style, allowMultiEdg
       ...other,
     });
 
+    // @ts-ignore
     gRef.current = graph;
 
     // @ts-ignore
@@ -66,7 +77,6 @@ export const Graph = forwardRef(({ children, width, height, style, allowMultiEdg
 
   const idMap = useRef(new Map())
   const childrens = useMemo(() =>  toArray(children).map((child, count) => {
-    console.log('map', child, child.props, count)
     const { type, props, ref } = child
     const { id } = props
     const hash = StringExt.hashcode(JSON.stringify(props))
@@ -85,7 +95,6 @@ export const Graph = forwardRef(({ children, width, height, style, allowMultiEdg
 
   useLayoutEffect(() => {
     if (container.current) {
-      console.log('childrens', childrens.map(i => i.key))
       Renderer.updateContainer(childrens, container.current, null);
     }
   }, [childrens]);
@@ -96,6 +105,7 @@ export const Graph = forwardRef(({ children, width, height, style, allowMultiEdg
 
   return (
     <div
+      className={className}
       ref={divRef}
       style={style}
     />
@@ -107,18 +117,15 @@ const createCell = (Ctor, shape, newProps, graph) => {
   const { props={}, events={} } = processProps(newProps)
   let node = Ctor({shape: shape || props.shape || 'rect', ...props, parent: undefined})
   node._removeFrom = function(parentNode) {
-    // console.log('remove node', node.id, this.id, node.model, parentNode)
     graph.model.removeCell(node)
   }
   node._update = (oldProps, newProps) => {
-    // console.log('update', oldProps, newProps, node)
     const { pprops={}, pevents={} } = processProps(oldProps)
     const { props={}, events={} } = processProps(newProps)
     if (!ObjectExt.isEqual(pprops, props)) {
       const t = Ctor({shape: node.shape, ...props, parent: undefined})
       const prop = t.getProp()
       if (!ObjectExt.isEqual(node.getProp(), prop)) {
-        console.log('setProp', oldProps, newProps, prop)
         Object.keys(prop).forEach((key) => {
           if (['id', 'parent', 'shape'].indexOf(key) === -1) {
             node.setProp(key, prop[key])
@@ -127,8 +134,6 @@ const createCell = (Ctor, shape, newProps, graph) => {
       }
     }
     // 移除旧事件，监听新事件
-    console.log('remove events', pevents, oldProps)
-    console.log('add events', events)
     node.off() // remove all events
     // 重新监听新的事件
     bindEvent(node, events, graph)
