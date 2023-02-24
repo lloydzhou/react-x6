@@ -20,6 +20,8 @@ yarn add react-x6
 
 ## demo
 
+[online demo](https://codesandbox.io/s/react-x6-demo-nhogrp?file=/src/App.js)
+
 ```
 import { Graph, Node, Edge } from 'react-x6'
 

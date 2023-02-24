@@ -22,7 +22,8 @@ export default defineConfig({
           '@antv/x6': 'X6',
           react: 'React',
           'react-dom': 'ReactDOM',
-          'react-reconciler': 'Reconciler'
+          'react-reconciler': 'Reconciler',
+          'react-reconciler/constants': 'ReconcilerConstants'
         }
       }
     }
