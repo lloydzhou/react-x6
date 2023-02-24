@@ -72,7 +72,6 @@ export const Graph = forwardRef<X6Graph, X6Graph.Options & Props>(({ children, w
    * 1. 不使用react生成的Children，而是强行生成带key的新
    * 2. childrens Map<props.id | props, key>
    * 3. 使用cloneElement把key更新到组件里面
-   *
    */
 
   const idMap = useRef(new Map())

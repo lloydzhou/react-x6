@@ -14,8 +14,7 @@ function App() {
   return (
     <div className="App">
       <Graph background grid width={800} height={600}>
-        <Node id="1" x={100} y={100} label="node1" width={80} height={40}>
-        </Node>
+        <Node id="1" x={100} y={100} label="node1" width={80} height={40}></Node>
         <Node id="3" x={200} y={100} label="node3" width={80} height={40} parent="1" />
         <Node id="2" x={200} y={200} label="node2" width={80} height={40} />
         <Node id="4" x={200} y={250} label="node4" width={80} height={40} ref={node4} />

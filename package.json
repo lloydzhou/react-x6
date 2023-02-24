@@ -1,26 +1,77 @@
 {
   "name": "react-x6",
-  "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "antv",
+    "x6",
+    "graph",
+    "svg",
+    "react",
+    "typescript"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "peerDependencies": {
+    "@antv/x6": "^2.3.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-reconciler": "^0.29.0"
+  },
+  "devDependencies": {
+    "@antv/x6": "^2.3.0",
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "@vitejs/plugin-react": "^3.1.0",
+    "antd": "^4.24.0",
+    "babel-preset-minify": "^0.5.2",
+    "eslint": "^8.34.0",
+    "eslint-config-react-app": "^7.0.1",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-react": "^7.32.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-reconciler": "^0.29.0",
+    "react-scripts": "5.0.1",
+    "typescript": "^4.9.3",
+    "vite": "^4.1.0",
+    "web-vitals": "^2.1.4"
+  },
+  "author": "lloydzhou",
+  "license": "MIT",
+  "homepage": "https://github.com/lloydzhou/antv-x6-react-practice",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:lloydzhou/antv-x6-react-practice.git"
+  },
+  "dependencies": {},
   "scripts": {
+    "lint": "eslint --fix src/lib",
     "dev": "vite",
     "build": "vite build && tsc -d --skipLibCheck --lib es2017 --emitDeclarationOnly --jsx react-jsx --esModuleInterop --declarationDir dist src/lib/index.ts",
     "preview": "vite preview"
   },
-  "dependencies": {
-    "@antv/x6": "^2.5.1",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-error-boundary": "^3.1.4",
-    "react-reconciler": "^0.29.0",
-    "reconciled": "^2.0.0"
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
-  "devDependencies": {
-    "@types/react": "^18.0.27",
-    "@types/react-dom": "^18.0.10",
-    "@vitejs/plugin-react": "^3.1.0",
-    "typescript": "^4.9.3",
-    "vite": "^4.1.0"
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
