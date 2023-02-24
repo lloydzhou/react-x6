@@ -24,12 +24,17 @@ yarn add react-x6
 
 ```
 import { Graph, Node, Edge } from 'react-x6'
+import { Snapline } from "@antv/x6-plugin-snapline";
+
+// 使用ElementOfPlugin定义组件
+const SnaplinePlugin = ElementOfPlugin('Snapline', Snapline)
 
 
 export default function App() {
   // ...
   return (
     <Graph background grid width={800} height={600}>
+      <SnaplinePlugin key="snapline" enabled={true}/>
       <Node id="1" x={100} y={100} label="node1" width={80} height={40}></Node>
       <Node id="3" x={200} y={100} label="node3" width={80} height={40} parent="1" />
       <Node id="2" x={200} y={200} label="node2" width={80} height={40} />
@@ -47,7 +52,7 @@ export default function App() {
 - [x] 提供渲染器
 - [x] Graph组件
 - [x] Node/Edge组件
-- [ ] ElementOfPlugin函数方便封装官方plugin
+- [x] ElementOfPlugin函数方便封装官方plugin
 - [ ] NodePort
 - [ ] NodeTool/EdgeTool
 

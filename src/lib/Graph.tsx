@@ -5,7 +5,7 @@ import { Graph as X6Graph, Node as X6Node, Edge as X6Edge, StringExt, ObjectExt 
 import { Renderer, ElementOf } from './reconciler';
 
 const toArray = (children) => {
-  return children ? children.length && children || [children] : []
+  return (children ? children.length && children || [children] : []).filter(i => i)
 }
 
 const processProps = (props) => {
@@ -23,7 +23,7 @@ const bindEvent = (node, events, graph) => {
   Object.entries(events).forEach(([name, callback]) => {
     graph.on(`cell:${name}`, (e) => {
       const { cell } = e
-      if (cell.id === node.id) {
+      if (node && cell.id === node.id) {
         // @ts-ignore
         callback(e)
       }
@@ -150,6 +150,21 @@ const createCell = (Ctor, shape, newProps, graph) => {
   return node
 }
 
+const createPlugin = (Ctor, newProps, graph) => {
+  const { props={}, events={} } = processProps(newProps)
+  const plugin = new Ctor(props)
+  graph.use(plugin)
+  bindEvent(null, events, plugin)
+  plugin._removeFrom = () => plugin.dispose()
+  // TODO
+  plugin._update = () => null
+  return plugin
+}
+
 export const Node = ElementOf("Node", createCell.bind(null, X6Node.create, 'rect'))
 export const Edge = ElementOf("Edge", createCell.bind(null, X6Edge.create, 'edge'))
+
+export function ElementOfPlugin(name, type) {
+  return ElementOf(name, createPlugin.bind(null, type)) as any
+}
 

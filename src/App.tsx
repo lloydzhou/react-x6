@@ -1,10 +1,15 @@
-import { Graph, Node, Edge } from './lib/Graph'
+import { Graph, Node, Edge, ElementOfPlugin } from './lib/Graph'
 import { useState, useRef, useEffect } from 'react'
 import './App.css'
+import { Snapline } from "@antv/x6-plugin-snapline";
+import { MiniMap } from "@antv/x6-plugin-minimap";
+
+const SnaplinePlugin = ElementOfPlugin('Snapline', Snapline)
+const MiniMapPlugin = ElementOfPlugin('MiniMap', MiniMap)
+
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  const minimapContainer = useRef()
   const node4 = useRef()
 
   useEffect(() => {
@@ -14,6 +19,7 @@ function App() {
   return (
     <div className="App">
       <Graph background grid width={800} height={600}>
+        <SnaplinePlugin key="snapline" enabled={true}/>
         <Node id="1" x={100} y={100} label="node1" width={80} height={40}></Node>
         <Node id="3" x={200} y={100} label="node3" width={80} height={40} parent="1" />
         <Node id="2" x={200} y={200} label="node2" width={80} height={40} />
