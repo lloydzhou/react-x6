@@ -20,15 +20,19 @@ const processProps = (props) => {
 }
 
 const bindEvent = (node, events, graph) => {
-  Object.entries(events).forEach(([name, callback]) => {
-    graph.on(`cell:${name}`, (e) => {
+  // 绑定事件都是包了一层的，返回一个取消绑定的函数
+  const ubindEvents = Object.entries(events).map(([name, callback]) => {
+    const handler = (e) => {
       const { cell } = e
       if (node && cell.id === node.id) {
         // @ts-ignore
         callback(e)
       }
-    })
+    }
+    graph.on(`cell:${name}`, handler)
+    return () => graph.off(`cell:${name}`, handler)
   })
+  return () => ubindEvents.forEach(h => h())
 }
 
 interface Props {
@@ -116,6 +120,7 @@ const createCell = (Ctor, shape, newProps, graph) => {
   const { props={}, events={} } = processProps(newProps)
   let node = Ctor({shape: shape || props.shape || 'rect', ...props, parent: undefined})
   node._removeFrom = function(parentNode) {
+    node._removeEvent()
     graph.model.removeCell(node)
   }
   node._update = (oldProps, newProps) => {
@@ -133,13 +138,13 @@ const createCell = (Ctor, shape, newProps, graph) => {
       }
     }
     // 移除旧事件，监听新事件
-    Object.keys(pevents).forEach((name) => graph.off(`cell:${name}`))
+    node._removeEvent()
     // 重新监听新的事件
-    bindEvent(node, events, graph)
+    node._removeEvent = bindEvent(node, events, graph)
   }
 
   // 增加监听事件
-  bindEvent(node, events, graph)
+  node._removeEvent = bindEvent(node, events, graph)
   graph.model.addCell(node)
   if (props.parent) {
     const parentNode = graph.getCellById(props.parent)
