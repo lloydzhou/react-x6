@@ -119,7 +119,7 @@ const createCell = (Ctor, shape, newProps, graph) => {
     graph.model.removeCell(node)
   }
   node._update = (oldProps, newProps) => {
-    const { pprops={}, pevents={} } = processProps(oldProps)
+    const { props: pprops={}, events: pevents={} } = processProps(oldProps)
     const { props={}, events={} } = processProps(newProps)
     if (!ObjectExt.isEqual(pprops, props)) {
       const t = Ctor({shape: node.shape, ...props, parent: undefined})
@@ -133,7 +133,7 @@ const createCell = (Ctor, shape, newProps, graph) => {
       }
     }
     // 移除旧事件，监听新事件
-    Object.keys(pevents).forEach((e) => graph.off(`cell:${name}`))
+    Object.keys(pevents).forEach((name) => graph.off(`cell:${name}`))
     // 重新监听新的事件
     bindEvent(node, events, graph)
   }
