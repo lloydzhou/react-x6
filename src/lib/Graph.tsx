@@ -133,7 +133,7 @@ const createCell = (Ctor, shape, newProps, graph) => {
       }
     }
     // 移除旧事件，监听新事件
-    node.off() // remove all events
+    Object.keys(pevents).forEach((e) => graph.off(`cell:${name}`))
     // 重新监听新的事件
     bindEvent(node, events, graph)
   }
