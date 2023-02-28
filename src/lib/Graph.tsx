@@ -81,8 +81,8 @@ export const Graph = forwardRef<X6Graph, X6Graph.Options & Props>(({ children, w
   const idMap = useRef(new Map())
   const childrens = useMemo(() =>  toArray(children).map((child, count) => {
     const { type, props, ref } = child
-    const { id } = props
-    const hash = StringExt.hashcode(JSON.stringify(props))
+    const { id, children, ...other } = props
+    const hash = StringExt.hashcode(JSON.stringify(other))
     let key = id || idMap.current.get(id) || idMap.current.get(hash)
     if (!key) {
       key = StringExt.uuid()
@@ -166,8 +166,37 @@ const createPlugin = (Ctor, newProps, graph) => {
   return plugin
 }
 
+// TODO port+group，感觉抽象复杂，收益并不高
+
+// label
+const createLabel = (newProps) => {
+  const label = {}
+}
+
+// marker
+const createMarker = (type, props) => {
+  // type=sourceMarker/targetMarker
+  let edge
+  const marker = {props}
+  marker._update = (newProps) => {
+    marker.props = newProps
+    if (edge) {
+      const lineAttr = edge.attr('line')
+      edge.attr('line', { ...lineAttr, [type]: marker.props })
+    }
+  }
+  marker._insert = (e) => {
+    edge = e
+    marker._update(props)
+  }
+  marker._removeFrom = () => marker._update(undefined)
+  return marker
+}
+
 export const Node = ElementOf("Node", createCell.bind(null, X6Node.create, 'rect'))
 export const Edge = ElementOf("Edge", createCell.bind(null, X6Edge.create, 'edge'))
+export const SourceMarker = ElementOf("SourceMarker", createMarker.bind(null, 'sourceMarker'))
+export const TargetMarker = ElementOf("TargetMarker", createMarker.bind(null, 'targetMarker'))
 
 export function ElementOfPlugin(name, type) {
   return ElementOf(name, createPlugin.bind(null, type)) as any

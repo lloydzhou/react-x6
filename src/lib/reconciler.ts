@@ -41,12 +41,14 @@ export const Renderer = Reconciler({
   getPublicInstance: instance => instance,
   createInstance(type, props, root, context, fnode) {
     if (componentMap.has(type)) {
-      return componentMap.get(type)(props, root)
+      return componentMap.get(type)(props, root, fnode)
     }
 	},
   createTextInstance: text => null,
   resetTextContent: node => null,
-  appendInitialChild(node, parentNode) {},
+  appendInitialChild(parentNode, node) {
+    node._insert && node._insert(parentNode)
+  },
   insertBefore() {},
   finalizeInitialChildren: () => false,
   supportsMutation: true,
@@ -63,7 +65,7 @@ export const Renderer = Reconciler({
   clearContainer() {},
   getCurrentEventPriority: () => DefaultEventPriority,
   detachDeletedInstance(childNode) {
-    childNode.dispose()
+    childNode.dispose && childNode.dispose()
   },
 })
 
