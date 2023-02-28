@@ -79,22 +79,25 @@ export const Graph = forwardRef<X6Graph, X6Graph.Options & Props>(({ children, w
    */
 
   const idMap = useRef(new Map())
-  const childrens = useMemo(() =>  toArray(children).map((child, count) => {
+  const processChildren = (children, prefix='') => toArray(children).map((child, count) => {
     const { type, props, ref } = child
     const { id, children, ...other } = props
     const hash = StringExt.hashcode(JSON.stringify(other))
-    let key = id || idMap.current.get(id) || idMap.current.get(hash)
+    let key = id || (id && idMap.current.get(`${prefix}:${id}`)) || idMap.current.get(`${prefix}:${hash}`)
     if (!key) {
       key = StringExt.uuid()
       // 边可能会在节点删除的时候隐式删除，使用旧的对象导致渲染出问题并且不能更新
       // TODO 所以边不传id的时候就使用新的uuid创建
       if (!id && type !== 'Edge') {
-        idMap.current.set(id || hash, key)
+        idMap.current.set(id ? `${prefix}:${id}` : `${prefix}:${hash}`, key)
       }
     }
     // 使用cloneElement，将key重置，不更改props这些信息
-    return cloneElement(child, { id: id || key, key })
-  }), [children])
+    // 如果当前节点有children，递归处理
+    return cloneElement(child, { id: id || key, key }, children && processChildren(children))
+  })
+
+  const childrens = useMemo(() => processChildren(children), [children])
 
   useLayoutEffect(() => {
     if (container.current) {
@@ -169,8 +172,33 @@ const createPlugin = (Ctor, newProps, graph) => {
 // TODO port+group，感觉抽象复杂，收益并不高
 
 // label
-const createLabel = (newProps) => {
-  const label = {}
+const createLabel = (props) => {
+  let edge
+  const { id } = props
+  // 使用id标记当前的对象
+  const label = {props}
+  label._update = (newProps) => {
+    label.props = newProps
+    if (edge) {
+      const labels = edge.getLabels()
+      const i = labels.findIndex(i => i.id === id)
+      // 如果通过id找不到index，就认为在最后（类似push）
+      const index = i === -1 ? labels.length : i
+      // 如果newProps为空，就表示移除当前配置
+      if (newProps) {
+        labels.splice(index, 1, newProps)
+      } else {
+        labels.splice(index, 1)
+      }
+      edge.setLabels([...labels])
+    }
+  }
+  label._insert = (e) => {
+    edge = e
+    label._update(props)
+  }
+  label._removeFrom = () => label._update(null)
+  return label
 }
 
 // marker
@@ -197,6 +225,7 @@ export const Node = ElementOf("Node", createCell.bind(null, X6Node.create, 'rect
 export const Edge = ElementOf("Edge", createCell.bind(null, X6Edge.create, 'edge'))
 export const SourceMarker = ElementOf("SourceMarker", createMarker.bind(null, 'sourceMarker'))
 export const TargetMarker = ElementOf("TargetMarker", createMarker.bind(null, 'targetMarker'))
+export const Label = ElementOf("Label", createLabel.bind(null))
 
 export function ElementOfPlugin(name, type) {
   return ElementOf(name, createPlugin.bind(null, type)) as any

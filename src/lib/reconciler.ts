@@ -49,10 +49,14 @@ export const Renderer = Reconciler({
   appendInitialChild(parentNode, node) {
     node._insert && node._insert(parentNode)
   },
-  insertBefore() {},
+  insertBefore(parentNode, node) {
+    node._insert && node._insert(parentNode)
+  },
   finalizeInitialChildren: () => false,
   supportsMutation: true,
-  appendChild(node, parentNode) {},
+  appendChild(node, parentNode) {
+    node._insert && node._insert(parentNode)
+  },
   appendChildToContainer(parentNode, node) {},
   insertInContainerBefore(node, parentNode) {},
   removeChildFromContainer(parentNode, childNode) {

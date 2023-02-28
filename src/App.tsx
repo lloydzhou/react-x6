@@ -4,6 +4,7 @@ import './App.css'
 import { Snapline } from "@antv/x6-plugin-snapline";
 import { MiniMap } from "@antv/x6-plugin-minimap";
 import { SourceMarker, TargetMarker } from './lib/Graph'
+import { Label } from './lib/Graph'
 
 const SnaplinePlugin = ElementOfPlugin('Snapline', Snapline)
 const MiniMapPlugin = ElementOfPlugin('MiniMap', MiniMap)
@@ -33,6 +34,21 @@ function App() {
         <Node id="4" x={200} y={250} label="node4" width={80} height={40} ref={node4} />
         <Node id="5" x={300} y={250} label="node5" width={80} height={40} onClick={click} />
         <Edge source="1" target="2">
+          <Label attrs={{
+            text: {
+              text: "Hello Label1",
+            },
+          }} position={{distance: 0.3}} />
+          <Label attrs={{
+            text: {
+              text: "Hello Label3",
+            },
+          }} position={{distance: 0.5}} />
+          <Label attrs={{
+            text: {
+              text: "Hello Label2",
+            },
+          }} position={{distance: 0.7}} />
           <SourceMarker name="diamond" />
           <TargetMarker name="ellipse" />
         </Edge>
