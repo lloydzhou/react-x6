@@ -1,6 +1,6 @@
 {
   "name": "react-x6",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "type": "module",
   "files": [
     "dist"
@@ -40,10 +40,10 @@
   },
   "author": "lloydzhou",
   "license": "MIT",
-  "homepage": "https://github.com/lloydzhou/antv-x6-react-practice",
+  "homepage": "https://github.com/lloydzhou/react-x6",
   "repository": {
     "type": "git",
-    "url": "git@github.com:lloydzhou/antv-x6-react-practice.git"
+    "url": "git@github.com:lloydzhou/react-x6.git"
   },
   "scripts": {
     "lint": "eslint --fix src/lib",

@@ -157,7 +157,7 @@ const createCell = (Ctor, shape, newProps, graph) => {
 
 const createPlugin = (Ctor, newProps, graph) => {
   const { props={}, events={} } = processProps(newProps)
-  const plugin = new Ctor(props)
+  const plugin = new Ctor({ enabled: true, ...props })
   graph.use(plugin)
   bindEvent(null, events, plugin)
   plugin._removeFrom = () => plugin.dispose()
