@@ -169,63 +169,102 @@ const createPlugin = (Ctor, newProps, graph) => {
   return plugin
 }
 
-// TODO port+group，感觉抽象复杂，收益并不高
-
-// label
-const createLabel = (props) => {
-  let edge
+// labels/ports
+const createListInstance = (get, set, props) => {
+  let cell
   const { id } = props
   // 使用id标记当前的对象
-  const label = {props}
-  label._update = (newProps) => {
-    label.props = newProps
-    if (edge) {
-      const labels = edge.getLabels()
-      const i = labels.findIndex(i => i.id === id)
+  const instance = {props}
+  instance._update = (newProps) => {
+    instance.props = newProps
+    if (cell) {
+      const items = get(cell)
+      const i = items.findIndex(i => i.id === id)
       // 如果通过id找不到index，就认为在最后（类似push）
-      const index = i === -1 ? labels.length : i
+      const index = i === -1 ? items.length : i
       // 如果newProps为空，就表示移除当前配置
       if (newProps) {
-        labels.splice(index, 1, newProps)
+        items.splice(index, 1, newProps)
       } else {
-        labels.splice(index, 1)
+        items.splice(index, 1)
       }
-      edge.setLabels([...labels])
+      set(cell, items)
     }
   }
-  label._insert = (e) => {
-    edge = e
-    label._update(props)
+  instance._insert = (e) => {
+    cell = e
+    instance._update(props)
   }
-  label._removeFrom = () => label._update(null)
-  return label
+  instance._removeFrom = () => instance._update(null)
+  return instance
+}
+// label
+const createLabel = (props) => createListInstance((edge) => edge.getLabels(), (edge, labels) => edge.setLabels([...labels]), props)
+
+const createNamedInstance = (type, update, props) => {
+  let cell
+  const item = {id: props.id, name: props.name}
+  item._update = (newProps) => {
+    if (cell) {
+      update(item, cell, newProps)
+    }
+  }
+  item._insert = (c) => {
+    cell = c
+    item._update(props)
+  }
+  item._removeFrom = () => item._update(undefined)
+  return item
 }
 
-// marker
-const createMarker = (type, props) => {
-  // type=sourceMarker/targetMarker
-  let edge
-  const marker = {props}
-  marker._update = (newProps) => {
-    marker.props = newProps
-    if (edge) {
-      const lineAttr = edge.attr('line')
-      edge.attr('line', { ...lineAttr, [type]: marker.props })
+// marker: type=sourceMarker/targetMarker
+const createMarker = (type, props) => createNamedInstance(type, (item, edge, newProps) => {
+  const lineAttr = edge.attr('line')
+  edge.attr('line', { ...lineAttr, [type]: newProps })
+}, props)
+
+// portgroup: type=group
+const createPortGroup = (type, props) => createNamedInstance(type, (item, node, newProps) => {
+    // dynamic set portgroup not working
+    const { port } = node
+    const groups = node.getPropByPath('ports/groups') || {}
+    if (newProps) {
+      groups[item.name] = port.parseGroup(newProps)
+    } else {
+      delete groups[item.name]
     }
-  }
-  marker._insert = (e) => {
-    edge = e
-    marker._update(props)
-  }
-  marker._removeFrom = () => marker._update(undefined)
-  return marker
-}
+    node.setPropByPath('ports/groups', {...groups})
+}, props)
+const createPort = (props) => createListInstance(
+  (node) => node.getPorts(), // getPorts return ObjectExt.cloneDeep
+  (node, ports) => {
+    node.setPropByPath('ports/items', ports)
+  },
+  props
+)
+
+// nodetools/edgetools
+const createTool = (props) => createListInstance(
+  (cell) => {
+    const tools = cell.getTools()
+    if (tools && tools.items) {
+      return tools.items
+    }
+    return tools || []
+  },
+  (cell, tools) => cell.setTools(tools),
+  props
+)
 
 export const Node = ElementOf("Node", createCell.bind(null, X6Node.create, 'rect'))
 export const Edge = ElementOf("Edge", createCell.bind(null, X6Edge.create, 'edge'))
 export const SourceMarker = ElementOf("SourceMarker", createMarker.bind(null, 'sourceMarker'))
 export const TargetMarker = ElementOf("TargetMarker", createMarker.bind(null, 'targetMarker'))
 export const Label = ElementOf("Label", createLabel.bind(null))
+export const PortGroup = ElementOf("PortGroup", createPortGroup.bind(null, 'group'))
+export const Port = ElementOf("Port", createPort.bind(null))
+export const EdgeTool = ElementOf("EdgeTool", createTool.bind(null))
+export const NodeTool = ElementOf("NodeTool", createTool.bind(null))
 
 export function ElementOfPlugin(name, type) {
   return ElementOf(name, createPlugin.bind(null, type)) as any
