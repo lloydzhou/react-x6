@@ -56,4 +56,5 @@ export default function App() {
 - [x] Label(Edge)
 - [x] NodePort
 - [x] NodeTool/EdgeTool
+- [x] SourceMarker/TargetMarker
 
