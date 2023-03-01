@@ -53,6 +53,7 @@ export default function App() {
 - [x] Graph组件
 - [x] Node/Edge组件
 - [x] ElementOfPlugin函数方便封装官方plugin
-- [ ] NodePort
-- [ ] NodeTool/EdgeTool
+- [x] Label(Edge)
+- [x] NodePort
+- [x] NodeTool/EdgeTool
 
