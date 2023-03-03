@@ -83,7 +83,7 @@ export const Graph = forwardRef<X6Graph, X6Graph.Options & Props>(({ children, w
     const { type, props, ref } = child
     const { id, children, ...other } = props
     const hash = StringExt.hashcode(JSON.stringify(other))
-    let key = id || (id && idMap.current.get(`${prefix}:${id}`)) || idMap.current.get(`${prefix}:${hash}`)
+    let key = (id && `${prefix}:${type}:${id}`) || (id && idMap.current.get(`${prefix}:${type}:${id}`)) || idMap.current.get(`${prefix}:${hash}`)
     if (!key) {
       key = StringExt.uuid()
       // 边可能会在节点删除的时候隐式删除，使用旧的对象导致渲染出问题并且不能更新
@@ -94,7 +94,7 @@ export const Graph = forwardRef<X6Graph, X6Graph.Options & Props>(({ children, w
     }
     // 使用cloneElement，将key重置，不更改props这些信息
     // 如果当前节点有children，递归处理
-    return cloneElement(child, { id: id || key, key }, children && processChildren(children))
+    return cloneElement(child, { id: id || key, key }, children && processChildren(children, key))
   })
 
   const childrens = useMemo(() => processChildren(children), [children])
@@ -175,7 +175,7 @@ const createListInstance = (get, set, props) => {
   const { id } = props
   // 使用id标记当前的对象
   const instance = {props}
-  instance._update = (newProps) => {
+  instance._update = (_, newProps) => {
     instance.props = newProps
     if (cell) {
       const items = get(cell)
@@ -193,9 +193,9 @@ const createListInstance = (get, set, props) => {
   }
   instance._insert = (e) => {
     cell = e
-    instance._update(props)
+    instance._update({}, props)
   }
-  instance._removeFrom = () => instance._update(null)
+  instance._removeFrom = () => instance._update()
   return instance
 }
 // label
@@ -204,16 +204,16 @@ const createLabel = (props) => createListInstance((edge) => edge.getLabels(), (e
 const createNamedInstance = (type, update, props) => {
   let cell
   const item = {id: props.id, name: props.name}
-  item._update = (newProps) => {
+  item._update = (_, newProps) => {
     if (cell) {
       update(item, cell, newProps)
     }
   }
   item._insert = (c) => {
     cell = c
-    item._update(props)
+    item._update({}, props)
   }
-  item._removeFrom = () => item._update(undefined)
+  item._removeFrom = () => item._update()
   return item
 }
 
@@ -260,11 +260,11 @@ export const Node = ElementOf("Node", createCell.bind(null, X6Node.create, 'rect
 export const Edge = ElementOf("Edge", createCell.bind(null, X6Edge.create, 'edge'))
 export const SourceMarker = ElementOf("SourceMarker", createMarker.bind(null, 'sourceMarker'))
 export const TargetMarker = ElementOf("TargetMarker", createMarker.bind(null, 'targetMarker'))
-export const Label = ElementOf("Label", createLabel.bind(null))
 export const PortGroup = ElementOf("PortGroup", createPortGroup.bind(null, 'group'))
-export const Port = ElementOf("Port", createPort.bind(null))
-export const EdgeTool = ElementOf("EdgeTool", createTool.bind(null))
-export const NodeTool = ElementOf("NodeTool", createTool.bind(null))
+export const Label = ElementOf("Label", createLabel)
+export const Port = ElementOf("Port", createPort)
+export const EdgeTool = ElementOf("EdgeTool", createTool)
+export const NodeTool = ElementOf("NodeTool", createTool)
 
 export function ElementOfPlugin(name, type) {
   return ElementOf(name, createPlugin.bind(null, type)) as any
