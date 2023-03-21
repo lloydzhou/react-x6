@@ -80,6 +80,9 @@ export const Graph = forwardRef<X6Graph, X6Graph.Options & Props>(({ children, w
 
   const idMap = useRef(new Map())
   const processChildren = (children, prefix='') => toArray(children).map((child, count) => {
+    if (child.map) {
+      return processChildren(child, prefix)
+    }
     const { type, props, ref } = child
     const { id, children, ...other } = props
     const hash = StringExt.hashcode(JSON.stringify(other))
@@ -95,7 +98,8 @@ export const Graph = forwardRef<X6Graph, X6Graph.Options & Props>(({ children, w
     // 使用cloneElement，将key重置，不更改props这些信息
     // 如果当前节点有children，递归处理
     return cloneElement(child, { id: id || key, key }, children && processChildren(children, key))
-  })
+    // 将Fragment内部children拉平，移除Fragment节点本身
+  }).reduce((res, vnode) => res.concat(vnode), [])
 
   const childrens = useMemo(() => processChildren(children), [children])
 

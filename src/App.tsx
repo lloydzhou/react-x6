@@ -24,6 +24,7 @@ function App() {
   }, [])
 
   const [visible, setVisible] = useState(true)
+  const nodes = [1,2,3,4,5].map(i => ({id: `id:${i}`, label: `node:${i}`, x: 250 + i * 50, y: 200 + i * 50}))
 
   return (
     <div className="App">
@@ -32,10 +33,7 @@ function App() {
         <Node id="1" x={100} y={100} label="node1" width={80} height={40}>
           <PortGroup name="group1" position={{name: 'top'}} />
           <PortGroup name="group2" position={{name: 'bottom'}} />
-          <Port id="port1" group="group1" />
-          <Port id="port2" group="group1" />
-          <Port id="port3" group="group2" />
-          <Port id="port4" group="group2" />
+          {[1,2,3,4].map(i => <Port key={`port${i}`} group={`group${Math.ceil(i/2)}`} id={`port${i}`} />)}
           <NodeTool name="button-remove" args={{ x: 10, y: 10 }} />
         </Node>
         <Node id="3" x={200} y={100} label="node3" width={80} height={40} parent="1" />
@@ -62,6 +60,8 @@ function App() {
           <SourceMarker name="diamond" />
           <TargetMarker name="ellipse" />
         </Edge>
+        {nodes.map(node => <Node key={node.id} {...node} width={100} height={40} />)}
+        {nodes.map(node => <Node {...node} key={node.id + '100'} id={node.id + '100'} x={node.x + 50} width={100} height={40} />)}
       </Graph>
     </div>
   )
